@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "header/lexer.h" // Ensure lexer.h is included
+#include "header/lexer.h"
 
-
-extern FILE *yyin; // Declare yyin for file input
+extern FILE *yyin;
+extern int yyparse();
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    yylex();
+    yyparse();
 
     printf("\nTokens:\n");
     for (int i = 0; i < TOKEN_COUNT; i++) {

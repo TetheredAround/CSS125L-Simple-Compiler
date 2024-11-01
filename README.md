@@ -4,23 +4,26 @@
 ### Compile Lexer, if uncompiled:
 - ```flex {lexer.l}```
 ### Compile Parser, if uncompiled:
-- ...
+- ```bison -d {paser.y}```
 ### Compile the Compiler:
-- ```gcc lex.yy.c main.c -o simple_compiler ```
+- ```gcc lex.yy.c main.c parser.tab.c -o simple_compiler ```
 - ```.\simple_compiler [file]```
 ## Sample Code
 - ```.\ simple_compiler toLex.c```
 
 ---
-# Standalone Components
-### Compile and Test Lexer:
+# To Update:
+## Independent Components
+#### Compile and Test Lexer:
 - ```flex {lexer.l}```
 - ```gcc lex.yy.c```
 - ```Use the following to run:```
     - ```./a```
     - ```a.exe```
-### Compile and Test Parser:
-...
+#### Compile and Test Parser:
+- ```bison -d {parser.y}```
+- ...
+
 
 ---
 ## To Implement:
