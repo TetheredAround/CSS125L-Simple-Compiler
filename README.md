@@ -8,13 +8,18 @@
 - install [Chocolatey](https://chocolatey.org/install).
     - Choose individual.
     - Follow instructions.
+
 Alternatively:
+
 - Open Powershell as administrator.
 - Enter the following command: ```Set-ExecutionPolicy AllSigned```
 - Then install Chocolatey using the following command: ```Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))```
+
 After installing, run the following command:
-- ```choco install make```
+```choco install make```.
+
 Then restart terminal and test using ```make```.
+
 ---
 # To Update:
 ## Independent Components
