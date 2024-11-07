@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "header/lexer.h"
+#include "header/ast.h"
+#include "header/symbol_table.h"
 
 extern FILE *yyin;
 extern int yyparse();
+extern ASTNode* program;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,12 +27,26 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    yyparse();
+    if (yyparse() == 0) {
+        printf("Parsing completed successfully.\n");
+
+        if (program == NULL) {
+            printf("AST is empty.\n");
+        } else {
+            printf("Generated AST:\n");
+            printAST(program, 0);
+        }
+        printSymbolTable();
+
+    } else {
+        printf("Parsing failed.\n");
+    }
 
     printf("\nTokens:\n");
     for (int i = 0; i < TOKEN_COUNT; i++) {
         printf("Token: %s, Type: %s\n", tokens[i].token, tokens[i].type);
     }
+    printf("\n\n");
 
     free(tokens);
     fclose(yyin);

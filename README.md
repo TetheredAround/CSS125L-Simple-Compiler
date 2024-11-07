@@ -1,16 +1,20 @@
 # Instructions
 ---
 ## How to Use Standalone All-in-One Compiler:
-### Compile Lexer, if uncompiled:
-- ```flex {lexer.l}```
-### Compile Parser, if uncompiled:
-- ```bison -d {paser.y}```
-### Compile the Compiler:
-- ```gcc lex.yy.c main.c parser.tab.c -o simple_compiler ```
-- ```.\simple_compiler [file]```
-## Sample Code
-- ```.\ simple_compiler toLex.c```
-
+### Use Makefile
+- ```make```
+- ```.\simple_compiler [file].cpp```
+### Install make via Chocolatey
+- install [Chocolatey](https://chocolatey.org/install).
+    - Choose individual.
+    - Follow instructions.
+Alternatively:
+- Open Powershell as administrator.
+- Enter the following command: ```Set-ExecutionPolicy AllSigned```
+- Then install Chocolatey using the following command: ```Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))```
+After installing, run the following command:
+- ```choco install make```
+Then restart terminal and test using ```make```.
 ---
 # To Update:
 ## Independent Components
@@ -33,7 +37,7 @@ literals.
 - Syntax Analysis
     - Parsing the token stream to construct an Abstract Syntax Tree (AST) based on a
 defined grammar.
-- Semantic Analysis
+- ~~Semantic Analysis~~
     - Checking for semantic errors, such as type mismatches and variable scope
 resolution. 
 - Intermediate Code Generation

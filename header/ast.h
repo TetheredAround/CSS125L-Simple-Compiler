@@ -1,21 +1,20 @@
 #ifndef AST_H
 #define AST_H
 
-#include <string>
-#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-class ASTNode {
-public:
-    std::string type;
-    std::string value;
-    std::vector<ASTNode*> children;
+typedef struct ASTNode {
+    char* type;
+    char* value;
+    struct ASTNode** children;  // Pointer to an array of child nodes
+    size_t num_children;        // The number of children
+} ASTNode;
 
-    ASTNode(const std::string& type, const std::string& value = "")
-        : type(type), value(value) {}
-
-    void addChild(ASTNode* child) {
-        children.push_back(child);
-    }
-};
+ASTNode* createASTNode(const char* type, const char* value);
+void addChild(ASTNode* parent, ASTNode* child);
+void freeASTNode(ASTNode* node);
+void printAST(ASTNode* node, int level);
 
 #endif
