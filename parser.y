@@ -25,14 +25,21 @@ void yyerror(const char *s);
     ASTNode* node;
 }
 
-%type <node> program statement_list statement declaration_statement initialization_statement input_statement output_statement addition_statement cout
+%type <node> program statement declaration_statement initialization_statement input_statement output_statement addition_statement cout
 
 %%
 
 program:
-    statement_list
+    statement
     {
-        program = $1; //originally $$
+        program = createASTNode("program", "");
+        
+        addChild(program, $1);  
+    }
+    | statement program
+    {
+        addChild(program, $1);
+        $$ = program;
     }
     ;
 
@@ -132,9 +139,12 @@ output_statement:
 
         $$ = createASTNode("output", "");
         ASTNode* additionNode = createASTNode("addition", "+");
-        addChild($$, $2);
-        addChild($$, $4);
-        addChild($$, additionNode)
+        //addChild($$, $2);
+        addChild($$, additionNode);
+        addChild(additionNode, $2);
+        addChild(additionNode, $4);
+        //addChild($$, $4);
+        
     }
     ;
 

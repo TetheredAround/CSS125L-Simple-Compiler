@@ -13,9 +13,16 @@ ASTNode* createASTNode(const char* type, const char* value) {
 // Add a child node to a parent node
 void addChild(ASTNode* parent, ASTNode* child) {
     parent->num_children++;
+
     parent->children = (ASTNode**)realloc(parent->children, parent->num_children * sizeof(ASTNode*));
-    parent->children[parent->num_children - 1] = child;
+
+    for (int i = parent->num_children - 2; i >= 0; i--) {
+        parent->children[i + 1] = parent->children[i];
+    }
+
+    parent->children[0] = child;
 }
+
 
 // Free the memory used by an AST node and its children
 void freeASTNode(ASTNode* node) {
