@@ -111,16 +111,11 @@ initialization_statement:
     ;
 
 input_statement:
-    INPUT IDENTIFIER SEMICOLON
+    INPUT cout SEMICOLON
     {
-        // INITIALIZIATION CHECK
-        if (addSymbol($2, "CIN")) {
-            setInitialized($2);
-        }
-
         $$ = createASTNode("input", "");
-        free($2);
-    }
+        addChild($$, $2);
+    };
 
 output_statement:
     OUTPUT cout SEMICOLON
@@ -167,7 +162,10 @@ cout:
     }
     | STRING
     {
-        $$ = createASTNode("string", $1);
+        printf("Value of $1: %s\n", $1);
+        char value[254];
+        sprintf(value, "%s", $1);
+        $$ = createASTNode("string", value);
         free($1);
     }
     ;

@@ -53,7 +53,6 @@ void finalizeIR(){
 void generateIR(ASTNode* node, int level, LLVMBuilderRef builder, LLVMModuleRef module, LLVMContextRef context) {
     if (!node) return;
 
-    // Process initialization nodes
     if (strcmp(node->type, "initialization") == 0) {
         printf("Initializing variable %s...\n", node->value);
 
@@ -63,12 +62,15 @@ void generateIR(ASTNode* node, int level, LLVMBuilderRef builder, LLVMModuleRef 
         for (size_t i = 0; i < node->num_children; ++i) {
             ASTNode* child = node->children[i];
             if (strcmp(child->type, "integer") == 0 && child->value) {
-                int initValue = atoi(child->value);  // Convert value to integer
-                LLVMValueRef constValue = LLVMConstInt(intType, initValue, 0);  // Create constant integer
-                LLVMBuildStore(builder, constValue, varAlloc);  // Store value in the allocated variable
+                int initValue = atoi(child->value);
+                LLVMValueRef constValue = LLVMConstInt(intType, initValue, 0);
+                LLVMBuildStore(builder, constValue, varAlloc);
             }
         }
-    }
+    }/*else if (strcmp(node->type, "declaration") == 0) {
+    } else if (strcmp(node->type, "output") == 0) {
+    } else if (strcmp(node->type, "input") == 0) {
+    } */
 
     for (size_t i = 0; i < node->num_children; ++i) {
         generateIR(node->children[i], level + 1, builder, module, context);

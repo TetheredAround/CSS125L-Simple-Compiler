@@ -1,0 +1,2 @@
+literal = "hello";
+cout<<literal;
