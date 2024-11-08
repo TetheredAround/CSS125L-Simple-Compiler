@@ -1,4 +1,6 @@
 cin>>x;
+cout<<x;
 literal = 5;
 cout<<literal;
-cout<< 1 + 2;
+mynum = 6;
+cout<<mynum;

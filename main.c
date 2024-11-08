@@ -18,6 +18,15 @@ LLVMModuleRef module;
 LLVMBuilderRef builder;
 LLVMContextRef context;
 
+int is_integer_type(LLVMTypeRef type) {
+    return LLVMGetTypeKind(type) == LLVMIntegerTypeKind;
+}
+
+int is_string_type(LLVMTypeRef type) {
+    return LLVMGetTypeKind(type) == LLVMPointerTypeKind &&
+           LLVMGetElementType(type) == LLVMInt8Type();
+}
+
 void initializeLLVM(){
     context = LLVMContextCreate();
     module = LLVMModuleCreateWithNameInContext("my_mod", context);
@@ -31,6 +40,14 @@ void initializeLLVM(){
     LLVMValueRef function = LLVMAddFunction(module, "main", funcType);
     LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context, function, "entry");
     LLVMPositionBuilderAtEnd(builder, entry);
+
+    LLVMTypeRef printfParamTypes[] = {LLVMPointerType(LLVMInt8Type(), 0)};
+    LLVMTypeRef printfType = LLVMFunctionType(LLVMInt32Type(), printfParamTypes, 1, 1);
+    LLVMAddFunction(module, "printf", printfType);
+
+    LLVMTypeRef scanfParamTypes[] = {LLVMPointerType(LLVMInt8Type(), 0)};
+    LLVMTypeRef scanfType = LLVMFunctionType(LLVMInt32Type(), scanfParamTypes, 1, 1);
+    LLVMAddFunction(module, "scanf", scanfType);
 }
 
 void finalizeIR(){
@@ -90,15 +107,36 @@ void generateIR(ASTNode* node, int level, LLVMBuilderRef builder, LLVMModuleRef 
 
             LLVMTypeRef printfParamTypes[] = {LLVMPointerType(LLVMInt8Type(), 0)};
             LLVMTypeRef printfType = LLVMFunctionType(LLVMInt32Type(), printfParamTypes, 1, 1);
-            LLVMValueRef printfFunc = LLVMAddFunction(module, "printf", printfType);
+
+            LLVMValueRef printfFunc = LLVMGetNamedFunction(module, "printf");
+            if (printfFunc == NULL) {
+                printfFunc = LLVMAddFunction(module, "printf", printfType);
+            }
 
             LLVMValueRef formatStr = LLVMBuildGlobalString(builder, "%d\n", "fmt");
-
             LLVMValueRef printfArgs[] = {formatStr, loadedValue};
             LLVMBuildCall2(builder, printfType, printfFunc, printfArgs, 2, "");
-        } else {
-
         }
+    }
+    else if (strcmp(node->type, "input") == 0) {
+        LLVMTypeRef scanfParamTypes[] = {LLVMPointerType(LLVMInt8Type(), 0)};
+        LLVMTypeRef scanfType = LLVMFunctionType(LLVMInt32Type(), scanfParamTypes, 1, 1);
+
+        LLVMValueRef scanfFunc = LLVMGetNamedFunction(module, "scanf");
+        if (scanfFunc == NULL) {
+            scanfFunc = LLVMAddFunction(module, "scanf", scanfType);
+        }
+
+        LLVMValueRef varAlloc = LLVMGetNamedGlobal(module, node->value);
+        if (varAlloc == NULL) {
+            varAlloc = LLVMAddGlobal(module, LLVMInt32Type(), node->value);
+            LLVMSetInitializer(varAlloc, LLVMConstInt(LLVMInt32Type(), 0, 0));
+        }
+
+        LLVMValueRef formatStr = LLVMBuildGlobalString(builder, "%d", "fmt");
+
+        LLVMValueRef scanfArgs[] = {formatStr, varAlloc};
+        LLVMBuildCall2(builder, scanfType, scanfFunc, scanfArgs, 2, "");
     }
 
     /*else if (strcmp(node->type, "declaration") == 0) {
@@ -132,12 +170,12 @@ void generateBitcodeAndObjectFile(LLVMModuleRef module) {
 
     printf("Successfully generated assembly file\n");
 
-    result = system("gcc -fPIE -pie output.o -o executable_name");
+    result = system("gcc -fPIE -pie output.o -o program_executable");
     if (result != 0) {
         fprintf(stderr, "Error: Could not link object file to create executable\n");
         return;
     }
-    printf("Successfully generated executable: executable_name\n");
+    printf("Successfully generated executable: program_executable\n");
 }
 
 
