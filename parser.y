@@ -119,6 +119,7 @@ input_statement:
         }
 
         $$ = createASTNode("input", "");
+        addChild($$, createASTNode("identifier", $2));
         free($2);
     }
 
