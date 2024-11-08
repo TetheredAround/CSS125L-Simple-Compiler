@@ -1,8 +1,8 @@
 # Makefile for building and running the simple compiler
 
 # Compiler and flags
-CC = gcc
-CFLAGS = -g -Wall -Wno-unused-function
+CC = clang
+CFLAGS = -g -Wall -Wno-unused-function `llvm-config --cflags --ldflags --libs core native`
 LEX = flex
 BISON = bison
 
