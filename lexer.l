@@ -34,7 +34,7 @@ void add_token(const char *token, const char *type) {
 [0-9]+       { yylval.ival = atoi(yytext); add_token(yytext, "INTEGER"); return INTEGER; }
 "="          { add_token(yytext, "ASSIGN"); return ASSIGN; }
 "+"          { add_token(yytext, "PLUS"); return PLUS; }
-\"[^\"]*\"  { add_token(yytext, "STRING"); return STRING; }
+\"[^\"]*\"  { yylval.sval = strdup(yytext); add_token(yytext, "STRING"); return STRING; }
 [a-zA-Z_][a-zA-Z0-9_]* { yylval.sval = strdup(yytext); add_token(yytext, "IDENTIFIER"); return IDENTIFIER; }
 ";"          { add_token(yytext, "SEMICOLON"); return SEMICOLON; }
 [ \t\n]+     {}

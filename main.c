@@ -54,20 +54,54 @@ void generateIR(ASTNode* node, int level, LLVMBuilderRef builder, LLVMModuleRef 
     if (!node) return;
 
     if (strcmp(node->type, "initialization") == 0) {
-        printf("Initializing variable %s...\n", node->value);
+        printf("Initializing global variable %s...\n", node->value);
 
         LLVMTypeRef intType = LLVMInt32TypeInContext(context);
-        LLVMValueRef varAlloc = LLVMBuildAlloca(builder, intType, node->value);
+
+        LLVMValueRef globalVar = LLVMAddGlobal(module, intType, node->value);
+        LLVMSetLinkage(globalVar, LLVMExternalLinkage);
+        LLVMSetVisibility(globalVar, LLVMDefaultVisibility);
+
+        LLVMValueRef defaultValue = LLVMConstInt(intType, 0, 0);
+        LLVMSetInitializer(globalVar, defaultValue);
 
         for (size_t i = 0; i < node->num_children; ++i) {
             ASTNode* child = node->children[i];
             if (strcmp(child->type, "integer") == 0 && child->value) {
                 int initValue = atoi(child->value);
                 LLVMValueRef constValue = LLVMConstInt(intType, initValue, 0);
-                LLVMBuildStore(builder, constValue, varAlloc);
+                LLVMSetInitializer(globalVar, constValue);
             }
         }
-    }/*else if (strcmp(node->type, "declaration") == 0) {
+    }
+    else if (strcmp(node->type, "output") == 0) {
+        printf("Output of variable %s...\n", node->value);
+
+        if (node->num_children == 0) {
+            LLVMValueRef varAlloc = LLVMGetNamedGlobal(module, node->value);
+            if (varAlloc == NULL) {
+                fprintf(stderr, "Error: Variable '%s' not found in global scope.\n", node->value);
+                return;
+            }
+
+            LLVMTypeRef intType = LLVMInt32Type();
+
+            LLVMValueRef loadedValue = LLVMBuildLoad2(builder, intType, varAlloc, "loadedValue");
+
+            LLVMTypeRef printfParamTypes[] = {LLVMPointerType(LLVMInt8Type(), 0)};
+            LLVMTypeRef printfType = LLVMFunctionType(LLVMInt32Type(), printfParamTypes, 1, 1);
+            LLVMValueRef printfFunc = LLVMAddFunction(module, "printf", printfType);
+
+            LLVMValueRef formatStr = LLVMBuildGlobalString(builder, "%d\n", "fmt");
+
+            LLVMValueRef printfArgs[] = {formatStr, loadedValue};
+            LLVMBuildCall2(builder, printfType, printfFunc, printfArgs, 2, "");
+        } else {
+
+        }
+    }
+
+    /*else if (strcmp(node->type, "declaration") == 0) {
     } else if (strcmp(node->type, "output") == 0) {
     } else if (strcmp(node->type, "input") == 0) {
     } */
@@ -83,13 +117,29 @@ void generateBitcodeAndObjectFile(LLVMModuleRef module) {
         return;
     }
 
-    int result = system("llc output.bc -filetype=obj -o output.o");
+    int result = system("llc -relocation-model=pic output.bc -filetype=obj -o output.o");
     if (result != 0) {
         fprintf(stderr, "Error: Could not generate object file from bitcode\n");
         return;
     }
-    printf("Successfully generated output.bc and output.o\n");
+    printf("Successfully generated output.bc and output.o with PIC\n");
+
+    result = system("llc output.ll -o output.asm");
+    if (result != 0) {
+        fprintf(stderr, "Error: Could not generate object file from assembly\n");
+        return;
+    }
+
+    printf("Successfully generated assembly file\n");
+
+    result = system("gcc -fPIE -pie output.o -o executable_name");
+    if (result != 0) {
+        fprintf(stderr, "Error: Could not link object file to create executable\n");
+        return;
+    }
+    printf("Successfully generated executable: executable_name\n");
 }
+
 
 void generateLLVM(){
     LLVMPrintModuleToFile(module, "output.ll", NULL);

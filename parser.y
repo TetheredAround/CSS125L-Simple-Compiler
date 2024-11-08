@@ -113,15 +113,15 @@ initialization_statement:
 input_statement:
     INPUT cout SEMICOLON
     {
-        $$ = createASTNode("input", "");
-        addChild($$, $2);
+        $$ = createASTNode("input", $2->value);
+        //addChild($$, $2);
     };
 
 output_statement:
     OUTPUT cout SEMICOLON
     {
-        $$ = createASTNode("output", "");
-        addChild($$, $2);
+        $$ = createASTNode("output", $2->value);
+        //addChild($$, $2);
     };
     |
     OUTPUT cout PLUS cout SEMICOLON 
@@ -132,8 +132,9 @@ output_statement:
             yyerror("Incompatible types for addition.");
         }
 
-        $$ = createASTNode("output", "");
         ASTNode* additionNode = createASTNode("addition", "+");
+        $$ = createASTNode("output", additionNode->value);
+        
         //addChild($$, $2);
         addChild($$, additionNode);
         addChild(additionNode, $2);
@@ -156,13 +157,13 @@ cout:
     }
     | INTEGER
     {
+        printf("Value of $1: %d\n", $1);
         char value[20];
         sprintf(value, "%d", $1);
         $$ = createASTNode("integer", value);
     }
     | STRING
     {
-        printf("Value of $1: %s\n", $1);
         char value[254];
         sprintf(value, "%s", $1);
         $$ = createASTNode("string", value);
