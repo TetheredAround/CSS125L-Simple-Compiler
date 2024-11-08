@@ -3,12 +3,7 @@
 #include "header/lexer.h"
 #include "header/ast.h"
 #include "header/symbol_table.h"
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/Support/raw_ostream.h>
+#include "header/assemblyGeneration.h"
 
 extern FILE *yyin;
 extern int yyparse();
@@ -42,8 +37,12 @@ int main(int argc, char *argv[]) {
             printf("Generated AST:\n");
             printAST(program, 0);
         }
-        printSymbolTable();
 
+        initAssemblyFile();
+        generateAssembly(program);
+        closeAssemblyFile();
+
+        printSymbolTable();
     } else {
         printf("Parsing failed.\n");
     }
